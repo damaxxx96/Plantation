@@ -7,6 +7,9 @@ from django.contrib.auth.models import User
 import json
 
 
+from helpers.auth_helper import retrieve_user
+
+
 @csrf_exempt
 def registration(request):
     if request.method == "POST":
@@ -59,21 +62,15 @@ def user_logout(request):
 
 
 @csrf_exempt
+@login_required
 def delete_account(request):
     if request.method == "POST":
         try:
-            data = json.loads(request.body)
-            username = data["username"]
-            password = data["password"]
+            user = retrieve_user(request)
+            logout(request)
+            user.delete()
+            return JsonResponse({"message": "Account deleted successfully"})
 
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                user.delete()
-                return JsonResponse({"message": "Account deleted successfully"})
-            else:
-                return JsonResponse(
-                    {"error": "Invalid username or password"}, status=401
-                )
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON data"}, status=400)
         except KeyError:

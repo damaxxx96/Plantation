@@ -26,6 +26,7 @@ def info_plant(request, plant_id):
             "species": plant.species,
             "height": plant.height,
             "age": plant.age,
+            "health": plant.health,
         }
         return JsonResponse({"plant": plant_data})
     except Plant.DoesNotExist:
@@ -71,8 +72,11 @@ def create_plant(request):
 
             height = data.get("height")
             age = data.get("age")
+            health = data.get("health")  # Add this line to get the health field
 
-            plant = Plant(species=species, height=height, age=age)
+            plant = Plant(
+                species=species, height=height, age=age, health=health
+            )  # Include health
             plant.save()
 
             return HttpResponse(status=201)
@@ -94,6 +98,8 @@ def update_plant(request, plant_id):
             plant.height = data["height"]
         if "age" in data:
             plant.age = data["age"]
+        if "health" in data:
+            plant.health = data["health"]
 
         plant.save()
 
